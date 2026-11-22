@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مشغّل المشاهد - مشروع فيديو SVG</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      gap: 16px;
+    }
+    .stage-box {
+      width: 100%;
+      max-width: 900px;
+      aspect-ratio: 16 / 9;
+      background: #ffffff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      border: 2px solid #334155;
+    }
+    svg { width: 100%; height: 100%; display: block; }
+    .controls {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #1e293b;
+      padding: 12px 16px;
+      border-radius: 12px;
+    }
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.secondary { background: #475569; }
+    .caption {
+      font-size: 16px;
+      color: #e2e8f0;
+      font-weight: 500;
+    }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.75; }
+      50% { opacity: 1; }
+    }
+    .float-anim { animation: floatSlow 3s ease-in-out infinite; }
+    .glow-anim { animation: pulseGlow 2.4s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+
+  <div class="stage-box">
+    <svg id="sceneCanvas" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#facc15" stop-opacity="0.45" />
+          <stop offset="100%" stop-color="#facc15" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+
+      <!-- خلفية المشهد -->
+      <rect width="1200" height="675" fill="#ffffff" />
+
+      <!-- هالة ذهبية خلف العنصر الرئيسي -->
+      <circle class="glow-anim" cx="600" cy="310" r="210" fill="url(#goldGlow)" />
+
+      <!-- مجموعة الشخصية / العنصر الرئيسي -->
+      <g id="heroGroup" class="float-anim" stroke="#0f172a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+        <!-- جسم بلون أزرق داكن -->
+        <path d="M475 530 C475 430, 520 390, 600 390 C680 390, 725 430, 725 530 Z" fill="#1e3a8a" />
+        <!-- الرأس -->
+        <circle cx="600" cy="285" r="78" fill="#fde68a" />
+        <!-- تفاصيل بسيطة للوجه -->
+        <circle cx="574" cy="278" r="6" fill="#0f172a" stroke="none" />
+        <circle cx="626" cy="278" r="6" fill="#0f172a" stroke="none" />
+        <path d="M578 314 Q600 330 622 314" fill="none" stroke="#0f172a" stroke-width="5" />
+      </g>
+
+      <!-- تمييز بيضاوي أحمر لكلمة مفتاحية -->
+      <g id="highlightBadge">
+        <ellipse cx="600" cy="595" rx="235" ry="38" fill="none" stroke="#dc2626" stroke-width="6" />
+        <text x="600" y="608" text-anchor="middle" font-size="34" font-weight="800" fill="#0f172a" id="sceneTitle">المشهد الأول: بداية المشغل</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <div class="caption" id="sceneCaption">مشهد تمهيدي جاهز — سنطوّره بمشاهد مفصلة حسب النص</div>
+    <div class="btn-group">
+      <button class="secondary" id="prevBtn">المشهد السابق</button>
+      <button id="nextBtn">المشهد التالي</button>
+    </div>
+  </div>
+
+  <script>
+    const scenes = [
+      {
+        title: "المشهد الأول: بداية المشغل",
+        caption: "مشهد تمهيدي جاهز — سنطوّره بمشاهد مفصلة حسب النص"
+      },
+      {
+        title: "المشهد الثاني: شرح الفكرة الأساسية",
+        caption: "الانتقال السلس بين المشاهد استعداداً لإضافة الرسوم التفصيلية"
+      }
+    ];
+
+    let currentIndex = 0;
+    const titleEl = document.getElementById("sceneTitle");
+    const captionEl = document.getElementById("sceneCaption");
+
+    function renderScene(index) {
+      const s = scenes[index];
+      titleEl.textContent = s.title;
+      captionEl.textContent = s.caption;
+    }
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      currentIndex = (currentIndex + 1) % scenes.length;
+      renderScene(currentIndex);
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      currentIndex = (currentIndex - 1 + scenes.length) % scenes.length;
+      renderScene(currentIndex);
+    });
+  </script>
+</body>
+  </html>
+  
